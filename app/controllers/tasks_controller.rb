@@ -1,5 +1,7 @@
 class TasksController < ApplicationController
   before_action :set_task, only: [:show, :edit, :update, :destroy]
+  respond_to :html 
+  respond_to :js, :only => [:create, :show, :destroy] # grrr it gets ignored!
 
   # GET /tasks
   # GET /tasks.json
@@ -26,15 +28,21 @@ class TasksController < ApplicationController
   def create
     @task = Task.new(task_params)
 
-    respond_to do |format|
-      if @task.save
-        format.html { redirect_to @task, notice: 'Task was successfully created.' }
-        format.json { render :show, status: :created, location: @task }
-      else
-        format.html { render :new }
-        format.json { render json: @task.errors, status: :unprocessable_entity }
-      end
+    if @task.save
+      redirect_to @task
+    else
+      render :new
     end
+
+    # respond_to do |format|
+    #   if @task.save
+    #     format.html { redirect_to @task, notice: 'Task was successfully created.' }
+    #     format.json { render :show, status: :created, location: @task }
+    #   else
+    #     format.html { render :new }
+    #     format.json { render json: @task.errors, status: :unprocessable_entity }
+    #   end
+    # end
   end
 
   # PATCH/PUT /tasks/1
@@ -56,7 +64,9 @@ class TasksController < ApplicationController
   def destroy
     @task.destroy
     respond_to do |format|
+      puts "\n\n\n\n\n\n ATTEMPTING\n\n\n\n\n\n"
       format.html { redirect_to tasks_url, notice: 'Task was successfully destroyed.' }
+      format.js { head :no_content }
       format.json { head :no_content }
     end
   end
